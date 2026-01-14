@@ -108,7 +108,8 @@
             };
         }
 
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'jungnang-maeul-net';
+        // [수정됨] 경로 불일치 문제를 해결하기 위해 ID를 고정값으로 변경합니다.
+        const appId = 'jungnang-maeul-net'; 
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
