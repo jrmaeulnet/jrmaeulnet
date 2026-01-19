@@ -48,10 +48,10 @@
                         <label class="block text-sm font-bold text-gray-700 mb-1">카테고리</label>
                         <select id="category" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
                             <option value="notice">공지사항</option>
-                            <option value="connection">공동체 연결</option>
-                            <option value="agenda">정책/의제</option>
-                            <option value="education">교육/컨설팅</option>
+                            <option value="market">중랑마을,장(場)</option>
+                            <option value="network">네트워크 및 연대</option>
                             <option value="operation">위탁운영</option>
+                            <option value="support">활동가 지원</option>
                         </select>
                     </div>
                     <div>
@@ -72,7 +72,7 @@
                     <label class="block text-sm font-bold text-gray-700 mb-1">본문 내용</label>
                     <textarea id="content" rows="5" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="내용을 입력하세요" required></textarea>
                 </div>
-                <button type="submit" id="submit-btn" class="w-full bg-gray-400 text-white font-bold py-3 rounded-lg transition cursor-not-allowed" disabled>
+                <button type="submit" id="submit-btn" class="w-full bg-green-600 text-white font-bold py-3 rounded-lg transition cursor-not-allowed" disabled>
                     연결 중...
                 </button>
             </form>
@@ -108,8 +108,7 @@
             };
         }
 
-        // [수정됨] 경로 불일치 문제를 해결하기 위해 ID를 고정값으로 변경합니다.
-        const appId = 'jungnang-maeul-net'; 
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'jungnang-maeul-net';
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -171,6 +170,7 @@
             const content = document.getElementById('content').value;
 
             try {
+                // 환경별 올바른 경로로 저장
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'news'), {
                     title, category, date, imageUrl, content,
                     createdAt: new Date().toISOString()
@@ -192,12 +192,13 @@
             
             onSnapshot(q, (snapshot) => {
                 newsList.innerHTML = '';
-                const posts = [];
+                let posts = [];
+                
                 snapshot.forEach(doc => {
                     posts.push({ id: doc.id, ...doc.data() });
                 });
 
-                // 날짜 내림차순 정렬
+                // 날짜 내림차순 정렬 (Javascript에서 수행)
                 posts.sort((a, b) => new Date(b.date) - new Date(a.date));
 
                 if (posts.length === 0) {
@@ -210,8 +211,11 @@
                     item.className = 'bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex justify-between items-center';
                     
                     const catMap = {
-                        'notice': '공지사항', 'connection': '공동체 연결', 'agenda': '정책/의제',
-                        'education': '교육/컨설팅', 'operation': '위탁운영'
+                        'notice': '공지사항',
+                        'market': '중랑마을,장(場)',
+                        'network': '네트워크 및 연대',
+                        'operation': '위탁운영',
+                        'support': '활동가 지원'
                     };
 
                     item.innerHTML = `
