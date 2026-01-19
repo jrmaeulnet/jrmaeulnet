@@ -38,9 +38,15 @@
             </p>
         </div>
 
-        <!-- 글 작성 폼 -->
-        <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-200 mb-12">
-            <h2 class="text-xl font-bold mb-6 border-b pb-2">새 소식 작성</h2>
+        <!-- 글 작성/수정 폼 -->
+        <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-200 mb-12 relative">
+            <div class="flex justify-between items-center mb-6 border-b pb-2">
+                <h2 id="form-title" class="text-xl font-bold">새 소식 작성</h2>
+                <button id="cancel-edit-btn" class="hidden text-sm text-gray-500 hover:text-gray-700 font-bold px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 transition">
+                    <i class="fas fa-times mr-1"></i>수정 취소
+                </button>
+            </div>
+            
             <form id="newsForm" class="space-y-6">
                 <div class="grid md:grid-cols-2 gap-4">
                     <div>
@@ -69,7 +75,8 @@
                     <div class="flex items-center space-x-4">
                         <input type="file" id="mainImageFile" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"/>
                     </div>
-                    <p class="text-xs text-gray-400 mt-1">* 파일을 선택하면 자동으로 압축됩니다.</p>
+                    <p id="image-help-text" class="text-xs text-gray-400 mt-1">* 파일을 선택하면 자동으로 압축됩니다.</p>
+                    <p id="current-image-status" class="text-xs text-blue-600 mt-1 font-bold hidden">※ 현재 등록된 이미지가 유지됩니다. 변경하려면 파일을 선택하세요.</p>
                 </div>
 
                 <!-- Quill Editor -->
@@ -99,7 +106,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, deleteDoc, doc, updateDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         let firebaseConfig;
         
@@ -119,14 +126,20 @@
             };
         }
 
-        // App ID 설정 (환경에 따라 자동 선택)
+        // App ID 설정
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'jungnang-maeul-net';
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // --- 이미지 압축 로직 (브라우저에서 직접 수행) ---
+        // --- 수정 모드 상태 관리 ---
+        let isEditing = false;
+        let currentEditId = null;
+        let currentOriginalImage = null;
+        let loadedPosts = {}; // ID로 데이터를 쉽게 찾기 위해 저장
+
+        // --- 이미지 압축 로직 ---
         const compressImage = (file) => {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -136,7 +149,7 @@
                     img.src = event.target.result;
                     img.onload = () => {
                         const canvas = document.createElement('canvas');
-                        const MAX_WIDTH = 800; // 가로 최대 800px로 리사이징
+                        const MAX_WIDTH = 800; 
                         let width = img.width;
                         let height = img.height;
 
@@ -150,7 +163,6 @@
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, width, height);
                         
-                        // JPEG 포맷, 품질 0.6으로 압축
                         const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
                         resolve(dataUrl);
                     };
@@ -170,13 +182,13 @@
                     ['blockquote', 'code-block'],
                     [{ 'list': 'ordered'}, { 'list': 'bullet' }],
                     [{ 'color': [] }, { 'background': [] }],
-                    ['link', 'image'], // 이미지 버튼 포함
+                    ['link', 'image'],
                     ['clean']
                 ]
             }
         });
 
-        // Quill 이미지 핸들러 (파일 선택 -> 압축 -> 에디터에 삽입)
+        // Quill 이미지 핸들러
         const imageHandler = () => {
             const input = document.createElement('input');
             input.setAttribute('type', 'file');
@@ -187,10 +199,8 @@
                 const file = input.files[0];
                 if (file) {
                     try {
-                        // 압축 진행
                         const compressedDataUrl = await compressImage(file);
                         const range = quill.getSelection();
-                        // 에디터에 이미지 삽입
                         quill.insertEmbed(range.index, 'image', compressedDataUrl);
                     } catch (error) {
                         console.error('Image processing failed:', error);
@@ -199,15 +209,18 @@
                 }
             };
         };
-        // 툴바의 이미지 버튼 클릭 시 위 핸들러 실행
         quill.getModule('toolbar').addHandler('image', imageHandler);
 
 
-        // --- Firebase 인증 및 데이터 처리 ---
+        // --- Auth & Logic ---
         const authStatus = document.getElementById('auth-status');
         const submitBtn = document.getElementById('submit-btn');
         const newsForm = document.getElementById('newsForm');
         const newsList = document.getElementById('admin-news-list');
+        const formTitle = document.getElementById('form-title');
+        const cancelEditBtn = document.getElementById('cancel-edit-btn');
+        const imageHelpText = document.getElementById('image-help-text');
+        const currentImageStatus = document.getElementById('current-image-status');
 
         const initAuth = async () => {
             try {
@@ -229,16 +242,18 @@
                 authStatus.classList.replace('bg-gray-200', 'bg-green-100');
                 authStatus.classList.replace('text-gray-500', 'text-green-700');
                 
-                submitBtn.disabled = false;
-                submitBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
-                submitBtn.classList.add('bg-green-600', 'hover:bg-green-700');
-                submitBtn.innerText = '등록하기';
+                if (!isEditing) {
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+                    submitBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+                    submitBtn.innerText = '등록하기';
+                }
 
                 loadNews();
             }
         });
 
-        // 1. 글 등록 (파일 압축 -> Base64 -> Firestore 저장)
+        // 1. 글 등록 및 수정 (Submit Handler)
         newsForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             if (!auth.currentUser) return alert('관리자 연결이 필요합니다.');
@@ -249,44 +264,125 @@
             const mainImageFile = document.getElementById('mainImageFile').files[0];
             const content = quill.root.innerHTML;
 
-            if (!title || !date || !content) return alert('필수 항목(제목, 날짜, 내용)을 입력해주세요.');
+            if (!title || !date || !content) return alert('필수 항목을 입력해주세요.');
 
-            submitBtn.innerText = '저장 중...';
+            submitBtn.innerText = isEditing ? '수정 중...' : '저장 중...';
             submitBtn.disabled = true;
 
             try {
                 let imageUrl = '';
-                // 대표 이미지가 있으면 압축해서 변환
+                
+                // 이미지를 새로 올렸으면 압축해서 사용
                 if (mainImageFile) {
                     imageUrl = await compressImage(mainImageFile);
-                } else {
-                    imageUrl = ''; // 이미지 없음
+                } 
+                // 새로 안 올렸는데 수정 모드라면 기존 이미지 유지
+                else if (isEditing && currentOriginalImage) {
+                    imageUrl = currentOriginalImage;
+                }
+                // 새로 쓰는 글인데 이미지 없으면 빈값
+                else {
+                    imageUrl = ''; 
                 }
 
-                // 용량 체크 (Firestore 문서 제한 1MB 대비 안전장치)
+                // 용량 체크
                 const docSize = new Blob([content + imageUrl]).size;
-                if(docSize > 900000) { // 약 900KB 초과 시 경고
-                    throw new Error("이미지가 너무 많거나 파일 크기가 큽니다. 본문 이미지를 줄여주세요.");
+                if(docSize > 950000) { 
+                    throw new Error("글 내용이나 이미지가 너무 큽니다. (제한 1MB)");
                 }
 
-                // Firestore에 저장
-                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'news'), {
+                const postData = {
                     title, category, date, imageUrl, content,
-                    createdAt: new Date().toISOString()
-                });
+                    updatedAt: new Date().toISOString()
+                };
 
-                alert('등록 완료!');
-                newsForm.reset();
-                quill.setContents([]); 
-                document.getElementById('mainImageFile').value = ''; // 파일 인풋 초기화
+                if (!isEditing) {
+                    postData.createdAt = new Date().toISOString();
+                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'news'), postData);
+                    alert('등록 완료!');
+                } else {
+                    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'news', currentEditId), postData);
+                    alert('수정 완료!');
+                    resetForm(); // 수정 후 초기화
+                }
+
+                if (!isEditing) {
+                    resetForm();
+                }
             } catch (error) {
                 console.error("Error:", error);
-                alert('등록 실패: ' + error.message);
+                alert('처리 실패: ' + error.message);
             } finally {
-                submitBtn.innerText = '등록하기';
-                submitBtn.disabled = false;
+                if (!isEditing) {
+                    submitBtn.innerText = '등록하기';
+                    submitBtn.disabled = false;
+                }
             }
         });
+
+        // 폼 초기화 함수
+        function resetForm() {
+            isEditing = false;
+            currentEditId = null;
+            currentOriginalImage = null;
+            
+            newsForm.reset();
+            quill.setContents([]);
+            
+            formTitle.innerText = '새 소식 작성';
+            submitBtn.innerText = '등록하기';
+            submitBtn.classList.replace('bg-blue-600', 'bg-green-600');
+            submitBtn.classList.replace('hover:bg-blue-700', 'hover:bg-green-700');
+            submitBtn.disabled = false;
+            
+            cancelEditBtn.classList.add('hidden');
+            currentImageStatus.classList.add('hidden');
+            imageHelpText.classList.remove('hidden');
+        }
+
+        // 수정 취소 버튼 이벤트
+        cancelEditBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            resetForm();
+        });
+
+        // 전역 함수: 수정 모드 시작
+        window.startEdit = (id) => {
+            const data = loadedPosts[id];
+            if (!data) return alert('데이터를 찾을 수 없습니다.');
+
+            isEditing = true;
+            currentEditId = id;
+            currentOriginalImage = data.imageUrl;
+
+            // 폼에 값 채우기
+            document.getElementById('title').value = data.title;
+            document.getElementById('category').value = data.category;
+            document.getElementById('date').value = data.date;
+            document.getElementById('mainImageFile').value = ''; // 파일 입력은 초기화
+
+            // 에디터 내용 채우기
+            quill.clipboard.dangerouslyPasteHTML(data.content);
+
+            // UI 변경
+            formTitle.innerText = '소식 수정하기';
+            submitBtn.innerText = '수정 완료';
+            submitBtn.classList.replace('bg-green-600', 'bg-blue-600');
+            submitBtn.classList.replace('hover:bg-green-700', 'hover:bg-blue-700');
+            
+            cancelEditBtn.classList.remove('hidden');
+            
+            if (data.imageUrl) {
+                currentImageStatus.classList.remove('hidden');
+                imageHelpText.classList.add('hidden');
+            } else {
+                currentImageStatus.classList.add('hidden');
+                imageHelpText.classList.remove('hidden');
+            }
+
+            // 상단으로 스크롤
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
 
         // 2. 글 목록 불러오기
         function loadNews() {
@@ -294,12 +390,15 @@
             
             onSnapshot(q, (snapshot) => {
                 newsList.innerHTML = '';
+                loadedPosts = {}; // 초기화
+
                 const posts = [];
                 snapshot.forEach(doc => {
-                    posts.push({ id: doc.id, ...doc.data() });
+                    const data = doc.data();
+                    posts.push({ id: doc.id, ...data });
+                    loadedPosts[doc.id] = data; // 수정을 위해 데이터 저장
                 });
 
-                // 날짜 최신순 정렬
                 posts.sort((a, b) => new Date(b.date) - new Date(a.date));
 
                 if (posts.length === 0) {
@@ -316,7 +415,6 @@
                     const item = document.createElement('div');
                     item.className = 'bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex justify-between items-center';
                     
-                    // 이미지가 없으면 기본 아이콘 표시
                     const thumbSrc = post.imageUrl ? post.imageUrl : 'https://via.placeholder.com/64?text=No+Img';
 
                     item.innerHTML = `
@@ -328,19 +426,24 @@
                                 <p class="text-xs text-gray-500">${post.date}</p>
                             </div>
                         </div>
-                        <button class="delete-btn px-3 py-1 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition text-sm font-bold" data-id="${post.id}">
-                            삭제
-                        </button>
+                        <div class="flex space-x-2">
+                            <button class="px-3 py-1 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition text-sm font-bold border border-blue-200" onclick="startEdit('${post.id}')">
+                                수정
+                            </button>
+                            <button class="delete-btn px-3 py-1 bg-red-50 text-red-600 rounded-md hover:bg-red-100 transition text-sm font-bold border border-red-200" data-id="${post.id}">
+                                삭제
+                            </button>
+                        </div>
                     `;
                     newsList.appendChild(item);
                 });
 
-                // 삭제 버튼 이벤트
                 document.querySelectorAll('.delete-btn').forEach(btn => {
                     btn.addEventListener('click', async (e) => {
                         if(confirm('정말 삭제하시겠습니까?')) {
                             const id = e.target.getAttribute('data-id');
                             await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'news', id));
+                            if (currentEditId === id) resetForm(); // 수정 중이던 글을 삭제하면 폼 초기화
                         }
                     });
                 });
