@@ -255,44 +255,44 @@
                 </div>
                 
                 <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    <!-- 중랑마을,장(場) (market) -->
-                    <div class="activity-card bg-white p-8 rounded-3xl shadow-sm border border-gray-100 text-center" data-aos="fade-up" data-aos-delay="100" onclick="goToNewsCategory('market')">
+                    <!-- Connection -->
+                    <div class="activity-card bg-white p-8 rounded-3xl shadow-sm border border-gray-100 text-center" data-aos="fade-up" data-aos-delay="100" onclick="goToNewsCategory('connection')">
                         <div class="w-20 h-20 bg-green-100 text-green-600 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-inner">
                             <i class="fas fa-users text-3xl"></i>
                         </div>
-                        <h4 class="text-xl font-bold mb-4">중랑마을,장(場)</h4>
-                        <p class="text-gray-500 text-sm leading-relaxed">주민들이 자유롭게 만나고 소통하는 마을 공론장 및 축제</p>
+                        <h4 class="text-xl font-bold mb-4">공동체 연결</h4>
+                        <p class="text-gray-500 text-sm leading-relaxed">마을의 다양한 단체와 개인을 연결하여 유기적인 네트워크를 형성합니다.</p>
                         <div class="mt-4 text-green-600 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">소식 보기 <i class="fas fa-arrow-right ml-1"></i></div>
                     </div>
-                    <!-- 네트워크 및 연대 (network) -->
-                    <div class="activity-card bg-white p-8 rounded-3xl shadow-sm border border-gray-100 text-center" data-aos="fade-up" data-aos-delay="200" onclick="goToNewsCategory('network')">
+                    <!-- Agenda -->
+                    <div class="activity-card bg-white p-8 rounded-3xl shadow-sm border border-gray-100 text-center" data-aos="fade-up" data-aos-delay="200" onclick="goToNewsCategory('agenda')">
                         <div class="w-20 h-20 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-inner">
                             <i class="fas fa-bullhorn text-3xl"></i>
                         </div>
-                        <h4 class="text-xl font-bold mb-4">네트워크 및 연대</h4>
-                        <p class="text-gray-500 text-sm leading-relaxed">지역 단체 및 풀뿌리 모임 간의 협력과 연대 활동</p>
+                        <h4 class="text-xl font-bold mb-4">정책 및 의제 발굴</h4>
+                        <p class="text-gray-500 text-sm leading-relaxed">지역 사회에 필요한 정책을 제안하고 함께 해결해 나갈 의제를 발굴합니다.</p>
                     </div>
-                    <!-- 활동가 지원 (support) -->
-                    <div class="activity-card bg-white p-8 rounded-3xl shadow-sm border border-gray-100 text-center" data-aos="fade-up" data-aos-delay="300" onclick="goToNewsCategory('support')">
+                    <!-- Education -->
+                    <div class="activity-card bg-white p-8 rounded-3xl shadow-sm border border-gray-100 text-center" data-aos="fade-up" data-aos-delay="300" onclick="goToNewsCategory('education')">
                         <div class="w-20 h-20 bg-orange-100 text-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-inner">
                             <i class="fas fa-graduation-cap text-3xl"></i>
                         </div>
-                        <h4 class="text-xl font-bold mb-4">활동가 지원</h4>
-                        <p class="text-gray-500 text-sm leading-relaxed">마을 활동가들의 역량 강화 교육 및 성장 지원 프로그램</p>
+                        <h4 class="text-xl font-bold mb-4">교육 및 컨설팅</h4>
+                        <p class="text-gray-500 text-sm leading-relaxed">시민 활동가들을 위한 맞춤형 교육과 성장 컨설팅 프로그램을 운영합니다.</p>
                     </div>
-                    <!-- 위탁운영 (operation) -->
+                    <!-- Operation -->
                     <div class="activity-card bg-white p-8 rounded-3xl shadow-sm border border-gray-100 text-center" data-aos="fade-up" data-aos-delay="400" onclick="goToNewsCategory('operation')">
                         <div class="w-20 h-20 bg-purple-100 text-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-inner">
                             <i class="fas fa-hand-holding-heart text-3xl"></i>
                         </div>
                         <h4 class="text-xl font-bold mb-4">위탁운영</h4>
-                        <p class="text-gray-500 text-sm leading-relaxed">주민들의 필요에 맞는 공공시설과 마을활력소 주민 주도 운영</p>
+                        <p class="text-gray-500 text-sm leading-relaxed">주민들의 필요에 맞는 공공시설과 마을활력소를 주민 주도로 운영합니다.</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- New Section: Latest News Preview (Dynamic) -->
+        <!-- New Section: Latest News Preview -->
         <section id="latest-news" class="py-32 bg-white">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-4" data-aos="fade-up">
@@ -317,7 +317,7 @@
             <div class="mb-12">
                 <h2 class="text-4xl font-bold mb-4 text-gray-900">전체 소식</h2>
                 <div class="w-20 h-1.5 bg-green-500 rounded-full mb-8"></div>
-                <!-- Filter Tabs: 5 Categories + All -->
+                <!-- Expanded Filter Tabs Matching Activity Cards -->
                 <div class="flex space-x-3 mb-10 overflow-x-auto pb-4 no-scrollbar" id="news-filter-container">
                     <button data-category="all" class="category-btn active px-6 py-2.5 bg-green-600 text-white rounded-full font-bold whitespace-nowrap transition shadow-md">전체</button>
                     <button data-category="notice" class="category-btn px-6 py-2.5 bg-white text-gray-500 border border-gray-100 rounded-full font-bold hover:bg-gray-100 whitespace-nowrap transition">공지사항</button>
@@ -327,9 +327,12 @@
                     <button data-category="support" class="category-btn px-6 py-2.5 bg-white text-gray-500 border border-gray-100 rounded-full font-bold hover:bg-gray-100 whitespace-nowrap transition">활동가 지원</button>
                 </div>
             </div>
+
+            <!-- News Grid with Updated Categories -->
             <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8" id="full-news-grid">
                 <div class="col-span-full text-center py-20 text-gray-400">데이터 로딩 중...</div>
             </div>
+            
             <div class="mt-20 text-center">
                 <button onclick="showPage('home')" class="px-10 py-4 bg-white border border-gray-200 rounded-full text-gray-600 font-bold hover:bg-gray-50 transition shadow-sm hover:shadow-md">메인으로 돌아가기</button>
             </div>
@@ -353,9 +356,12 @@
                     <span>중랑마을넷</span>
                 </div>
             </div>
-            <div class="mb-12 rounded-3xl overflow-hidden shadow-lg bg-gray-100">
-                <img id="detail-image" src="" alt="Detail Image" class="w-full h-auto object-cover" onerror="this.style.display='none'">
+            
+            <!-- Featured Image (Initially Hidden, shown if exists) -->
+            <div id="detail-image-container" class="mb-8 rounded-3xl overflow-hidden shadow-lg bg-gray-100 hidden">
+                <img id="detail-image" src="" alt="Detail Image" class="w-full h-auto object-cover">
             </div>
+
             <div id="detail-content" class="prose prose-lg max-w-none text-gray-600 leading-8 whitespace-pre-wrap"></div>
             <hr class="my-16 border-gray-200">
         </div>
@@ -424,7 +430,6 @@
             };
         }
 
-        // 앱 ID를 환경에 따라 자동 설정 (Canvas <-> 외부 호환)
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'jungnang-maeul-net';
 
         const app = initializeApp(firebaseConfig);
@@ -544,11 +549,21 @@
         }
 
         window.openNewsDetail = (itemData) => {
-            document.getElementById('detail-image').src = itemData.imageUrl;
+            const detailImage = document.getElementById('detail-image');
+            const detailImageContainer = document.getElementById('detail-image-container');
+            
             document.getElementById('detail-category').innerText = catMap[itemData.category] || itemData.category;
             document.getElementById('detail-title').innerText = itemData.title;
             document.getElementById('detail-date').innerHTML = `<i class="far fa-calendar-alt mr-2"></i> ${itemData.date}`;
             document.getElementById('detail-content').innerText = itemData.content;
+            
+            if (itemData.imageUrl && itemData.imageUrl.trim() !== '') {
+                detailImage.src = itemData.imageUrl;
+                detailImageContainer.classList.remove('hidden');
+            } else {
+                detailImageContainer.classList.add('hidden');
+            }
+            
             showPage('news-detail');
         };
     </script>
