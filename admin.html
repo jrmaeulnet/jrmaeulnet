@@ -48,10 +48,10 @@
                         <label class="block text-sm font-bold text-gray-700 mb-1">카테고리</label>
                         <select id="category" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
                             <option value="notice">공지사항</option>
-                            <option value="connection">중랑마을,장(場)</option>
-                            <option value="agenda">네트워크 및 연대</option>
-                            <option value="education">위탁운영</option>
-                            <option value="operation">활동가 지원</option>
+                            <option value="connection">공동체 연결</option>
+                            <option value="agenda">정책/의제</option>
+                            <option value="education">교육/컨설팅</option>
+                            <option value="operation">위탁운영</option>
                         </select>
                     </div>
                     <div>
@@ -210,8 +210,8 @@
                     item.className = 'bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex justify-between items-center';
                     
                     const catMap = {
-                        '공지사항': '공지사항', '중랑마을,장(場)': '중랑마을,장(場)', '네트워크 및 연대': '네트워크 및 연대',
-                        '위탁운영': '위탁운영', '활동가 지원': '활동가 지원'
+                        'notice': '공지사항', 'connection': '공동체 연결', 'agenda': '정책/의제',
+                        'education': '교육/컨설팅', 'operation': '위탁운영'
                     };
 
                     item.innerHTML = `
