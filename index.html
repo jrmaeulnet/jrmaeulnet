@@ -255,38 +255,38 @@
                 </div>
                 
                 <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    <!-- Connection -->
-                    <div class="activity-card bg-white p-8 rounded-3xl shadow-sm border border-gray-100 text-center" data-aos="fade-up" data-aos-delay="100" onclick="goToNewsCategory('connection')">
+                    <!-- 중랑마을,장(場) (market) -->
+                    <div class="activity-card bg-white p-8 rounded-3xl shadow-sm border border-gray-100 text-center" data-aos="fade-up" data-aos-delay="100" onclick="goToNewsCategory('market')">
                         <div class="w-20 h-20 bg-green-100 text-green-600 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-inner">
                             <i class="fas fa-users text-3xl"></i>
                         </div>
-                        <h4 class="text-xl font-bold mb-4">공동체 연결</h4>
-                        <p class="text-gray-500 text-sm leading-relaxed">마을의 다양한 단체와 개인을 연결하여 유기적인 네트워크를 형성합니다.</p>
+                        <h4 class="text-xl font-bold mb-4">중랑마을,장(場)</h4>
+                        <p class="text-gray-500 text-sm leading-relaxed">주민들이 자유롭게 만나고 소통하는 마을 공론장 및 축제</p>
                         <div class="mt-4 text-green-600 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">소식 보기 <i class="fas fa-arrow-right ml-1"></i></div>
                     </div>
-                    <!-- Agenda -->
-                    <div class="activity-card bg-white p-8 rounded-3xl shadow-sm border border-gray-100 text-center" data-aos="fade-up" data-aos-delay="200" onclick="goToNewsCategory('agenda')">
+                    <!-- 네트워크 및 연대 (network) -->
+                    <div class="activity-card bg-white p-8 rounded-3xl shadow-sm border border-gray-100 text-center" data-aos="fade-up" data-aos-delay="200" onclick="goToNewsCategory('network')">
                         <div class="w-20 h-20 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-inner">
                             <i class="fas fa-bullhorn text-3xl"></i>
                         </div>
-                        <h4 class="text-xl font-bold mb-4">정책 및 의제 발굴</h4>
-                        <p class="text-gray-500 text-sm leading-relaxed">지역 사회에 필요한 정책을 제안하고 함께 해결해 나갈 의제를 발굴합니다.</p>
+                        <h4 class="text-xl font-bold mb-4">네트워크 및 연대</h4>
+                        <p class="text-gray-500 text-sm leading-relaxed">지역 단체 및 풀뿌리 모임 간의 협력과 연대 활동</p>
                     </div>
-                    <!-- Education -->
-                    <div class="activity-card bg-white p-8 rounded-3xl shadow-sm border border-gray-100 text-center" data-aos="fade-up" data-aos-delay="300" onclick="goToNewsCategory('education')">
+                    <!-- 활동가 지원 (support) -->
+                    <div class="activity-card bg-white p-8 rounded-3xl shadow-sm border border-gray-100 text-center" data-aos="fade-up" data-aos-delay="300" onclick="goToNewsCategory('support')">
                         <div class="w-20 h-20 bg-orange-100 text-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-inner">
                             <i class="fas fa-graduation-cap text-3xl"></i>
                         </div>
-                        <h4 class="text-xl font-bold mb-4">교육 및 컨설팅</h4>
-                        <p class="text-gray-500 text-sm leading-relaxed">시민 활동가들을 위한 맞춤형 교육과 성장 컨설팅 프로그램을 운영합니다.</p>
+                        <h4 class="text-xl font-bold mb-4">활동가 지원</h4>
+                        <p class="text-gray-500 text-sm leading-relaxed">마을 활동가들의 역량 강화 교육 및 성장 지원 프로그램</p>
                     </div>
-                    <!-- Operation -->
+                    <!-- 위탁운영 (operation) -->
                     <div class="activity-card bg-white p-8 rounded-3xl shadow-sm border border-gray-100 text-center" data-aos="fade-up" data-aos-delay="400" onclick="goToNewsCategory('operation')">
                         <div class="w-20 h-20 bg-purple-100 text-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-inner">
                             <i class="fas fa-hand-holding-heart text-3xl"></i>
                         </div>
                         <h4 class="text-xl font-bold mb-4">위탁운영</h4>
-                        <p class="text-gray-500 text-sm leading-relaxed">주민들의 필요에 맞는 공공시설과 마을활력소를 주민 주도로 운영합니다.</p>
+                        <p class="text-gray-500 text-sm leading-relaxed">주민들의 필요에 맞는 공공시설과 마을활력소 주민 주도 운영</p>
                     </div>
                 </div>
             </div>
@@ -555,9 +555,23 @@
             document.getElementById('detail-category').innerText = catMap[itemData.category] || itemData.category;
             document.getElementById('detail-title').innerText = itemData.title;
             document.getElementById('detail-date').innerHTML = `<i class="far fa-calendar-alt mr-2"></i> ${itemData.date}`;
-            document.getElementById('detail-content').innerText = itemData.content;
             
-            if (itemData.imageUrl && itemData.imageUrl.trim() !== '') {
+            // [중요 수정] innerText -> innerHTML로 변경하여 에디터 서식과 이미지를 그대로 표현
+            const contentDiv = document.getElementById('detail-content');
+            contentDiv.innerHTML = itemData.content;
+            
+            // Quill 에디터 이미지 스타일링 적용 (반응형)
+            const images = contentDiv.getElementsByTagName('img');
+            for(let img of images) {
+                img.style.maxWidth = '100%';
+                img.style.height = 'auto';
+                img.style.borderRadius = '0.5rem';
+                img.style.marginTop = '1rem';
+                img.style.marginBottom = '1rem';
+            }
+            
+            // 대표 이미지가 있으면 보여주고, 없으면 숨김
+            if (itemData.imageUrl && itemData.imageUrl.trim() !== '' && !itemData.imageUrl.includes('placeholder')) {
                 detailImage.src = itemData.imageUrl;
                 detailImageContainer.classList.remove('hidden');
             } else {
