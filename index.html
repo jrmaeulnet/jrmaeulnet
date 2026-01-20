@@ -151,7 +151,11 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16 md:h-20 items-center">
                 <div class="flex items-center">
-                    <a href="javascript:void(0)" onclick="showPage('home'); return false;" class="text-xl md:text-2xl font-bold text-green-600 tracking-tight">중랑마을넷</a>
+                    <!-- 로고 변경: 텍스트 -> 이미지 -->
+                    <a href="javascript:void(0)" onclick="showPage('home'); return false;" class="flex items-center">
+                        <!-- [수정 필요] src 속성에 실제 로고 이미지 파일 경로를 입력하세요. 예: src="./images/logo.png" -->
+                        <img src="https://i.postimg.cc/5ypbGfm9/Kakao-Talk-Photo-2026-01-20-16-15-15.png" alt="중랑마을넷" class="h-8 md:h-10 w-auto object-contain">
+                    </a>
                 </div>
                 <div class="hidden md:flex items-center space-x-10">
                     <a href="#about" onclick="showPage('home', 'about'); return false;" class="nav-link font-medium hover:text-green-600 transition">소개</a>
